@@ -355,8 +355,11 @@ class RENet(nn.Module):
         sub_pred = self.linear(torch.cat((self.ent_embeds[o], o_h, self.rel_embeds[self.num_rels:][r]), dim=0))
 
 
-        loss_sub = self.criterion(ob_pred.view(1, -1), o.view(-1))
-        loss_ob = self.criterion(sub_pred.view(1, -1), s.view(-1))
+       # loss_sub = self.criterion(ob_pred.view(1, -1), o.view(-1))
+        loss_sub = self.criterion(ob_pred.view(1, -1), o.view(-1).long())
+        #loss_ob = self.criterion(sub_pred.view(1, -1), s.view(-1))
+        loss_ob = self.criterion(sub_pred.view(1, -1), s.view(-1).long())
+
 
         loss = loss_sub + loss_ob
 
@@ -396,8 +399,11 @@ class RENet(nn.Module):
         s_id = torch.nonzero(all_triplets[:, 0] == s).view(-1)
         idx = torch.nonzero(all_triplets[s_id, 1] == r).view(-1)
         idx = s_id[idx]
-        idx = all_triplets[idx, 2]
+        idx = all_triplets[idx, 2].long()
+        
         ob_pred[idx] = 0
+        
+
         ob_pred[o_label] = ground
 
         ob_pred_comp1 = (ob_pred > ground).data.cpu().numpy()
@@ -409,7 +415,7 @@ class RENet(nn.Module):
         o_id = torch.nonzero(all_triplets[:, 2] == o).view(-1)
         idx = torch.nonzero(all_triplets[o_id, 1] == r).view(-1)
         idx = o_id[idx]
-        idx = all_triplets[idx, 0]
+        idx = all_triplets[idx, 0].long()
         sub_pred[idx] = 0
         sub_pred[s_label] = ground
 
